@@ -6,6 +6,8 @@ exporters:
   debug:
     verbosity: detailed
 
+# The default OpenTelemetry endpoint references `api.honeycomb.io:443`. If you are in the EU, set the endpoint to `api.eu1.honeycomb.io:443`.
+
 processors:
   memory_limiter:
     check_interval: 5s
