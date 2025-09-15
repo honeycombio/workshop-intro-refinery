@@ -4,9 +4,7 @@ General:
 Network:
   ListenAddr: "0.0.0.0:8080"
   PeerListenAddr: "0.0.0.0:8081"
-  # The default causes Refinery to point to the US endpoint upon instantiation.
-  # If you are in the EU, add the line below.
-  # HoneycombAPI: "https://api.eu1.honeycomb.io"
+  # For EU teams, add HoneycombAPI: "https://api.eu1.honeycomb.io"
 GRPCServerParameters:
   Enabled: true
   ListenAddr: "0.0.0.0:9090"
