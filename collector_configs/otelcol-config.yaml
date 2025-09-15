@@ -1,13 +1,10 @@
 exporters:
   otlp:
-    endpoint: api.honeycomb.io:443
+    endpoint: api.honeycomb.io:443 # or api.eu1.honeycomb.io:443 for EU teams 
     headers:
       x-honeycomb-team: "${HONEYCOMB_API_KEY}"
   debug:
     verbosity: detailed
-
-# The default endpoint references `api.honeycomb.io:443`. If you are in the EU, set the endpoint to `api.eu1.honeycomb.io:443`.
-
 processors:
   memory_limiter:
     check_interval: 5s
