@@ -1,16 +1,15 @@
-# Honeycomb Academy: Introduction to Refinery - Hands On Lab
+# Effective Sampling with Honeycomb Refinery — Sample Application
 
 ***This is a demo app, don't run it in production!***
 
-This contains the foundations of what's needed for automatically generating trace data that can be used to help learners understand the effects of sampling with Refinery on their data in Honeycomb.
+This is the sample application for Honeycomb's **Effective Sampling with Honeycomb Refinery** workshop. It generates synthetic trace data through a small pipeline — two load generators, an OpenTelemetry Collector, and Honeycomb Refinery — so workshop participants can see the effects of sampling on their data in Honeycomb.
 
 ## Introduction
 
-Hello! Welcome to the **Introduction to Refinery** course lab.
+Hello! Welcome to the **Effective Sampling with Honeycomb Refinery** workshop's sample application.
 
-1. This repository provides a sample pipeline of applications, an OpenTelemetry Collector, and an instance of Refinery used for Sampling.
-2. The `main` branch is the starting point for the lab work in the **Introduction to Refinery** course
-3. Other branches show the final product of each lab activity and can be used to check your work.
+1. This repository provides a sample pipeline of applications, an OpenTelemetry Collector, and an instance of Refinery used for sampling.
+2. The pipeline here is already fully wired together on the `main` branch — Refinery is running from the start, with a sensible default sampling rule already in place. Workshop participants spend their time tuning Refinery's sampling rules, not building the pipeline itself.
 
 ## Running the application
 
@@ -23,7 +22,7 @@ You also have the option to run this application locally.
 First, clone this repository.
 
 ```bash
-git clone https://github.com/honeycombio/academy-intro-refinery.git
+git clone https://github.com/honeycombio/workshop-intro-refinery.git
 ```
 
 Install Docker: <https://docs.docker.com/get-docker/>
@@ -46,9 +45,7 @@ After making changes to a service, you can tell it to rebuild just that one:
 
 `./run [ otel-collector | loadgen[123] | refinery ]`
 
-Note: not all services are present in the main branch so some services won't start until they've been added to the `docker-compose.yaml` file.
-
-Note: This course assumes you're using Linux or macOS. If you're using Windows, use WSL.
+Note: this workshop assumes you're using Linux or macOS. If you're using Windows, use WSL.
 
 ### Stop the app
 

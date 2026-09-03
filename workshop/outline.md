@@ -1,4 +1,4 @@
-# Workshop Outline: Introduction to Refinery
+# Workshop Outline: Effective Sampling with Honeycomb Refinery
 
 **Target length:** ~4 hours as drafted below
 
