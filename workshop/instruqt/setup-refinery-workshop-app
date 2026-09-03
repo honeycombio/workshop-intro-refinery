@@ -1,0 +1,36 @@
+#!/bin/bash
+set -euxo pipefail
+
+# Instruqt setup scripts start running before the host has finished bootstrapping.
+# Wait for that to complete before touching the sandbox.
+while [ ! -f /opt/instruqt/bootstrap/host-bootstrap-completed ]
+do
+    sleep 1
+done
+
+cd /root/workshop-intro-refinery
+
+docker compose up -d
+
+# Only wait on the two long-running services. loadgen1/loadgen2 are expected to
+# finish their traffic burst (~120s) and exit on their own — don't wait on those,
+# or this loop will time out even on a successful boot.
+#
+# Note: this used to be a `timeout 120 bash -c '...'` wrapper around a nested
+# subshell, but that subshell's `docker compose ps` couldn't find the compose
+# file even though the outer script's cwd was correct — the nested shell
+# didn't reliably inherit it in this environment. Doing the wait loop directly
+# in this same script (no nested shell) avoids that entirely.
+elapsed=0
+until docker compose ps | grep -q "otel-collector.*Up" \
+   && docker compose ps | grep -q "refinery.*Up"; do
+  if [ "$elapsed" -ge 120 ]; then
+    echo "Timed out waiting for otel-collector/refinery to be Up" >&2
+    docker compose ps
+    exit 1
+  fi
+  sleep 5
+  elapsed=$((elapsed + 5))
+done
+
+echo "Refinery sample pipeline is ready."
