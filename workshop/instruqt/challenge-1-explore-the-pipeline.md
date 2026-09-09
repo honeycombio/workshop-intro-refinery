@@ -5,9 +5,9 @@ Your sandbox is already running a full telemetry pipeline: two load generators (
 1. Select the [button label="Terminal"](tab-1) tab.
 2. Check what's running:
 ```bash
-docker compose ps
+docker compose ps -a
 ```
-You should see four services up: `loadgen1`, `loadgen2`, `otel-collector`, and `refinery`.
+You should see all four services listed: `loadgen1`, `loadgen2`, `otel-collector`, and `refinery`. `otel-collector` and `refinery` should show `Up` — they run continuously. `loadgen1` and `loadgen2` generate a fixed ~2-minute burst of traffic and then exit on their own, so depending on timing you might see them as `Up` or as `Exited (0)` — both are expected. If you want a fresh burst of traffic running right now, use `./run` to restart just the load generators.
 
 ## How the pieces fit together
 
@@ -61,6 +61,6 @@ The pipeline can't reach your new environment yet; it's using a placeholder key.
 ## Success criteria
 
 - `.env` contains your own Honeycomb API key, not the placeholder
-- All four services (`loadgen1`, `loadgen2`, `otel-collector`, `refinery`) show as running via `docker compose ps`
+- All four services appear via `docker compose ps -a`, with `otel-collector` and `refinery` showing `Up` (`loadgen1`/`loadgen2` may show `Up` or `Exited (0)` depending on timing — both are fine)
 - You can state what sampler and `SampleRate` are currently configured in `refinery_configs/rules.yaml`
 - A Honeycomb query grouped by `app.function` shows three distinct values with live data in the last 10 minutes
