@@ -23,13 +23,22 @@ You should see four services up: `loadgen1`, `loadgen2`, `otel-collector`, and `
 3. Open `refinery_configs/rules.yaml`. Notice the `__default__` sampler is a `DeterministicSampler` with a `SampleRate`. Whatever number you see here is roughly the fraction of traces Refinery is currently keeping — a `SampleRate` of 10 means it keeps about 1 in every 10 traces.
 4. Open `collector_configs/otelcol-config.yaml`. Find the `exporters` section — notice traffic is sent to `refinery`, not directly to Honeycomb.
 
+## Create your own Honeycomb environment
+
+Use your own personal Honeycomb account for this workshop, not a shared team account. That way there's no mix-up over who owns what data or environment.
+
+1. Select the [button label="Honeycomb"](tab-2) tab.
+2. If you don't already have a personal Honeycomb account, sign up for free at [ui.honeycomb.io/signup](https://ui.honeycomb.io/signup) (US) or [ui.eu1.honeycomb.io/signup](https://ui.eu1.honeycomb.io/signup) (EU) — signup automatically creates your own team with you as its Team Owner. Already have a personal account? Just log in instead.
+3. Create a dedicated environment for this workshop: select **Environments** (top-left) → **Manage Environments** → **Create Environment**. Name it `refinery-workshop`, then select **Create Environment**.
+4. Honeycomb generates an API key for the new environment automatically. Select **View API Keys** on the environment to find it. Copy it now; you'll need it in the next step.
+
 ## Add your Honeycomb API key
 
-The pipeline can't reach your Honeycomb environment yet — it's using a placeholder key.
+The pipeline can't reach your new environment yet; it's using a placeholder key.
 
 1. Select the [button label="Refinery Sample Application"](tab-0) tab.
 2. Open `.env` in the repo root.
-3. Replace `<YOUR_HONEYCOMB_API_KEY>` with your own Honeycomb API key. ([Don't have one handy?](https://docs.honeycomb.io/get-started/configure/environments/manage-api-keys/#create-api-key))
+3. Replace `<YOUR_HONEYCOMB_API_KEY>` with the API key you just copied.
 4. Select the [button label="Terminal"](tab-1) tab and restart the pipeline so it picks up the new key — editing `.env` alone doesn't do anything until the containers restart:
 ```bash
 ./stop && ./run
