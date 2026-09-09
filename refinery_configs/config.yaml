@@ -20,7 +20,5 @@ Debugging:
 Logger:
   Type: stdout
   Level: warn
-LegacyMetrics:
-  Enabled: false
 OTelMetrics:
   Enabled: false
