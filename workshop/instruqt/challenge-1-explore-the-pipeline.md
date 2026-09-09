@@ -1,6 +1,6 @@
 # Challenge 1: Explore Your Refinery Pipeline
 
-Your sandbox is already running a full telemetry pipeline: two load generators (`loadgen1`, `loadgen2`) sending synthetic traffic through an OpenTelemetry Collector, into Honeycomb Refinery, and on to Honeycomb. You won't build any of this yourself — your job in this challenge is to understand what's already running before you start tuning it.
+Your sandbox is already running a full telemetry pipeline: two load generators (`loadgen1`, `loadgen2`) sending synthetic traffic through an OpenTelemetry Collector, into Honeycomb Refinery, and on to Honeycomb. You won't build any of this yourself — your job in this challenge is to understand what's already running before you start tuning it. One thing you *do* need to do first: the pipeline ships with a placeholder Honeycomb API key, so it can't actually send data to your Honeycomb environment until you add your own.
 
 1. Select the [button label="Terminal"](tab-1) tab.
 2. Check what's running:
@@ -23,6 +23,19 @@ You should see four services up: `loadgen1`, `loadgen2`, `otel-collector`, and `
 3. Open `refinery_configs/rules.yaml`. Notice the `__default__` sampler is a `DeterministicSampler` with a `SampleRate`. Whatever number you see here is roughly the fraction of traces Refinery is currently keeping — a `SampleRate` of 10 means it keeps about 1 in every 10 traces.
 4. Open `collector_configs/otelcol-config.yaml`. Find the `exporters` section — notice traffic is sent to `refinery`, not directly to Honeycomb.
 
+## Add your Honeycomb API key
+
+The pipeline can't reach your Honeycomb environment yet — it's using a placeholder key.
+
+1. Select the [button label="Refinery Sample Application"](tab-0) tab.
+2. Open `.env` in the repo root.
+3. Replace `<YOUR_HONEYCOMB_API_KEY>` with your own Honeycomb API key. ([Don't have one handy?](https://docs.honeycomb.io/get-started/configure/environments/manage-api-keys/#create-api-key))
+4. Select the [button label="Terminal"](tab-1) tab and restart the pipeline so it picks up the new key — editing `.env` alone doesn't do anything until the containers restart:
+```bash
+./stop && ./run
+```
+5. Give it about 30 seconds to come back up and start sending fresh traffic.
+
 ## Confirm data is flowing in Honeycomb
 
 1. Select the [button label="Honeycomb"](tab-2) tab.
@@ -34,10 +47,11 @@ You should see four services up: `loadgen1`, `loadgen2`, `otel-collector`, and `
 5. Now remove `app.endpoint` from **GROUP BY** and rerun — this simplified view is what you'll come back to in later challenges to see how your rule changes affect the data.
 
 > [!IMPORTANT]
-> If you don't see any data, go back to the [button label="Terminal"](tab-1) tab and run `docker compose logs otel-collector` and `docker compose logs refinery` to check for errors before re-checking Honeycomb.
+> If you don't see any data, go back to the [button label="Terminal"](tab-1) tab and run `docker compose logs otel-collector` and `docker compose logs refinery` to check for errors before re-checking Honeycomb. A `401 response for AuthInfo request` or `check your API key` error almost always means `.env` still has the placeholder key, or the pipeline wasn't restarted after you edited it — double-check `.env`, then run `./stop && ./run` again.
 
 ## Success criteria
 
+- `.env` contains your own Honeycomb API key, not the placeholder
 - All four services (`loadgen1`, `loadgen2`, `otel-collector`, `refinery`) show as running via `docker compose ps`
 - You can state what sampler and `SampleRate` are currently configured in `refinery_configs/rules.yaml`
 - A Honeycomb query grouped by `app.function` shows three distinct values with live data in the last 10 minutes
