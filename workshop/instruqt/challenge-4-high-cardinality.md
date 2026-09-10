@@ -1,6 +1,6 @@
 # Challenge 4: High Cardinality in Dynamic Samplers
 
-This challenge builds directly on Challenge 3 — your `rules.yaml` should have the `EMADynamicSampler` with `GoalSampleRate: 10` and `FieldList: [app.function]`. You're about to deliberately break it, on purpose — watching a dynamic sampler fail is the fastest way to understand why field choice matters.
+This challenge builds directly on Challenge 3 — your `rules.yaml` should have the `EMADynamicSampler` with `GoalSampleRate: 10` and `FieldList: [app.function]`. You're about to deliberately break it. Watching a dynamic sampler fail is the fastest way to understand why field choice matters.
 
 ## Update the rules to introduce high cardinality
 
@@ -21,7 +21,7 @@ This challenge builds directly on Challenge 3 — your `rules.yaml` should have 
 ## Explore the data in Honeycomb in Usage Mode
 
 1. Select the [button label="Honeycomb"](tab-2) tab. Give the system about two minutes to begin emitting traces.
-2. Make sure you're in Usage Mode — modify the URL by adding `/usage/` before `/result/` without losing your existing query.
+2. Make sure you're in Usage Mode. Modify the URL by adding `/usage/` before `/result/` without losing your existing query.
 3. Set the time range to the last 10 minutes, then select the area on the graph where you see activity and select **Zoom in**.
 4. Add `app.function exists` to the **WHERE** clause. Add `meta.refinery.reason` to **GROUP BY**.
 5. Add `AVG(Sample Rate)` to **VISUALIZE**, alongside `COUNT`.
@@ -32,7 +32,7 @@ This challenge builds directly on Challenge 3 — your `rules.yaml` should have 
 
 1. Add `meta.refinery.reason = rules/trace/Sample the rest dynamically:emadynamic` to the **WHERE** clause. Add `meta.refinery.sample_key` to **GROUP BY**, and remove `meta.refinery.reason` from **GROUP BY**.
 2. You should observe:
-   - A large number of distinct keys — this is due to the high cardinality.
+   - A large number of distinct keys. This is due to the high cardinality.
    - Very few keys reach a sample rate near 10.
    - Many keys stuck at very low sample rates, close to 1.
 

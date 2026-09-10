@@ -1,0 +1,45 @@
+#!/bin/bash
+# Checks Challenge 2: Using Rules to Change How Data Is Sampled.
+#
+# Instruqt check scripts can only inspect the sandbox's files and running
+# containers — they can't query Honeycomb. So the Query Builder / BubbleUp /
+# Usage Mode success criteria (calculated field, meta.refinery.reason
+# breakdown, AVG(Sample Rate) ~9.4) are NOT checked here; only rules.yaml
+# and the restarted pipeline are.
+set -uo pipefail
+
+cd /root/workshop-intro-refinery || { echo "Repo not found at /root/workshop-intro-refinery"; exit 1; }
+
+fail=0
+rules_file="refinery_configs/rules.yaml"
+
+check() {
+  if ! grep -qE "$1" "$rules_file"; then
+    echo "$2"
+    fail=1
+  fi
+}
+
+if [ ! -f "$rules_file" ]; then
+  echo "Expected $rules_file to exist"
+  exit 1
+fi
+
+check "RulesBasedSampler" "Expected $rules_file to use a RulesBasedSampler"
+check 'Name: Keep all when http\.response\.status_code >= 500' "Expected the 'Keep all when http.response.status_code >= 500' rule in $rules_file"
+check 'Field: http\.response\.status_code' "Expected a condition on http.response.status_code in $rules_file"
+check 'Operator: ">="' "Expected the status_code condition to use the >= operator"
+check 'Value: 500' "Expected the status_code condition's Value to be 500"
+check 'SampleRate: 1$' "Expected the 500-status rule to have SampleRate: 1"
+check 'Name: Sample the rest$' "Expected a catchall rule named 'Sample the rest' in $rules_file"
+check 'SampleRate: 10$' "Expected the catchall rule to have SampleRate: 10"
+
+# A bad edit here (usually indentation) makes Refinery fail config
+# validation and crash-loop on restart — confirm it actually came back up.
+if ! docker compose ps | grep -q "refinery.*Up"; then
+  echo "refinery isn't Up — check 'docker compose logs refinery' for a config validation error (often bad YAML indentation)"
+  fail=1
+fi
+
+[ "$fail" -eq 0 ] || exit 1
+echo "rules.yaml has the 500-status rule and catchall, and refinery restarted cleanly."

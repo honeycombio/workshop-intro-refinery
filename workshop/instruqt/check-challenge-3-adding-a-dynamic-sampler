@@ -1,0 +1,69 @@
+#!/bin/bash
+# Checks Challenge 3: Adding a Dynamic Sampler.
+#
+# Instruqt check scripts can only inspect the sandbox's files and running
+# containers — they can't query Honeycomb. So the Query Builder / Usage
+# Mode success criteria (four app.function values, the dynamic rule
+# landing near its goal, sample-key comparisons) are NOT checked here;
+# only rules.yaml, docker-compose.yaml, and the running containers are.
+set -uo pipefail
+
+cd /root/workshop-intro-refinery || { echo "Repo not found at /root/workshop-intro-refinery"; exit 1; }
+
+fail=0
+rules_file="refinery_configs/rules.yaml"
+
+check() {
+  if ! grep -qE "$1" "$rules_file"; then
+    echo "$2"
+    fail=1
+  fi
+}
+
+if [ ! -f "$rules_file" ]; then
+  echo "Expected $rules_file to exist"
+  exit 1
+fi
+
+check 'Name: Keep all when http\.response\.status_code >= 500' "Expected the 500-status rule to still be in $rules_file"
+check 'SampleRate: 1$' "Expected the 500-status rule to still have SampleRate: 1"
+check 'Name: Sample the rest dynamically' "Expected a 'Sample the rest dynamically' rule in $rules_file"
+check 'EMADynamicSampler' "Expected the catchall rule to use EMADynamicSampler"
+check 'GoalSampleRate: 10' "Expected GoalSampleRate: 10 on the EMADynamicSampler"
+check 'app\.function' "Expected app.function in the EMADynamicSampler's FieldList"
+
+if grep -q 'app\.user_id' "$rules_file"; then
+  echo "rules.yaml already has app.user_id in FieldList — that's added in Challenge 4, not here"
+  fail=1
+fi
+
+if ! grep -q "loadgen3:" docker-compose.yaml; then
+  echo "Expected a loadgen3 service in docker-compose.yaml"
+  fail=1
+fi
+
+if ! grep -q "loadgen_config3.yaml" docker-compose.yaml; then
+  echo "Expected loadgen3 to mount loadgen_configs/loadgen_config3.yaml"
+  fail=1
+fi
+
+if [ ! -s loadgen_configs/loadgen_config3.yaml ]; then
+  echo "Expected loadgen_configs/loadgen_config3.yaml to exist and be non-empty"
+  fail=1
+fi
+
+ps_output=$(docker compose ps -a)
+for svc in loadgen1 loadgen2 loadgen3; do
+  if ! echo "$ps_output" | grep -q "$svc"; then
+    echo "Expected '$svc' to be running alongside the others"
+    fail=1
+  fi
+done
+
+if ! echo "$ps_output" | grep -q "refinery.*Up"; then
+  echo "refinery isn't Up — check 'docker compose logs refinery' for a config validation error"
+  fail=1
+fi
+
+[ "$fail" -eq 0 ] || exit 1
+echo "Dynamic sampler is configured and loadgen3 is running alongside loadgen1/loadgen2."

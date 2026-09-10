@@ -1,0 +1,39 @@
+#!/bin/bash
+# Checks Challenge 4: High Cardinality in Dynamic Samplers.
+#
+# Instruqt check scripts can only inspect the sandbox's files and running
+# containers — they can't query Honeycomb. So the Usage Mode / keyspace
+# success criteria (AVG(Sample Rate) dropping, distinct sample-key count,
+# being able to explain why) are NOT checked here; only rules.yaml and the
+# running pipeline are.
+set -uo pipefail
+
+cd /root/workshop-intro-refinery || { echo "Repo not found at /root/workshop-intro-refinery"; exit 1; }
+
+fail=0
+rules_file="refinery_configs/rules.yaml"
+
+check() {
+  if ! grep -qE "$1" "$rules_file"; then
+    echo "$2"
+    fail=1
+  fi
+}
+
+if [ ! -f "$rules_file" ]; then
+  echo "Expected $rules_file to exist"
+  exit 1
+fi
+
+check 'EMADynamicSampler' "Expected the EMADynamicSampler to still be configured in $rules_file"
+check 'GoalSampleRate: 10' "Expected GoalSampleRate: 10 to be unchanged in $rules_file"
+check 'app\.function' "Expected app.function to still be in the FieldList"
+check 'app\.user_id' "Expected app.user_id to be added to the FieldList"
+
+if ! docker compose ps | grep -q "refinery.*Up"; then
+  echo "refinery isn't Up — make sure you ran ./run after editing rules.yaml"
+  fail=1
+fi
+
+[ "$fail" -eq 0 ] || exit 1
+echo "FieldList now includes app.function and app.user_id, and refinery is running."

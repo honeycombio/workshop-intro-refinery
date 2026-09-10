@@ -1,0 +1,41 @@
+#!/bin/bash
+# Checks Challenge 1: Explore Your Refinery Pipeline.
+#
+# Instruqt check scripts can only inspect the sandbox's files and running
+# containers — they can't query Honeycomb. So the "three distinct
+# app.function values show up in a Honeycomb query" success criterion is
+# NOT checked here; only the pipeline state and .env are.
+set -uo pipefail
+
+cd /root/workshop-intro-refinery || { echo "Repo not found at /root/workshop-intro-refinery"; exit 1; }
+
+fail=0
+ps_output=$(docker compose ps -a)
+
+for svc in loadgen1 loadgen2 otel-collector refinery; do
+  if ! echo "$ps_output" | grep -q "$svc"; then
+    echo "Expected to see '$svc' in 'docker compose ps -a' output"
+    fail=1
+  fi
+done
+
+for svc in otel-collector refinery; do
+  if ! echo "$ps_output" | grep -q "$svc.*Up"; then
+    echo "Expected '$svc' to be Up"
+    fail=1
+  fi
+done
+
+if [ ! -f .env ]; then
+  echo "Expected a .env file in the repo root"
+  fail=1
+elif grep -q '^HONEYCOMB_API_KEY=<YOUR_HONEYCOMB_API_KEY>$' .env; then
+  echo ".env still has the placeholder API key — replace it with your own Honeycomb API key"
+  fail=1
+elif ! grep -qE '^HONEYCOMB_API_KEY=.+$' .env; then
+  echo ".env is missing a HONEYCOMB_API_KEY value"
+  fail=1
+fi
+
+[ "$fail" -eq 0 ] || exit 1
+echo "Pipeline is up and .env has a real API key."
