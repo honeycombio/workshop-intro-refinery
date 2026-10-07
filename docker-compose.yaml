@@ -45,7 +45,7 @@ services:
       - refinery
 
   refinery:
-    image: honeycombio/refinery
+    image: honeycombio/refinery:v3.4.0
     ports:
       - "8080:8080"
       - "9090:9090"
