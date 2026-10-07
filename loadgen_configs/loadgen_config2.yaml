@@ -7,8 +7,9 @@ format:
   nspans: 10
   tracetime: 1s
 quantity:
-  tps: 1000
-  runtime: 120s
+  tps: 500
+  tracecount: 120000
+  runtime: 300s
   ramptime: 1s
 output:
   sender: otel

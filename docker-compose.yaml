@@ -17,7 +17,7 @@ services:
       - refinery
 
   loadgen1:
-    image: ghcr.io/honeycombio/loadgen/loadgen:v0.3.0
+    image: ghcr.io/honeycombio/loadgen/loadgen:v0.5.0
     env_file:
       - .env
     volumes:
@@ -31,7 +31,7 @@ services:
       - refinery
 
   loadgen2:
-    image: ghcr.io/honeycombio/loadgen/loadgen:v0.3.0
+    image: ghcr.io/honeycombio/loadgen/loadgen:v0.5.0
     env_file:
       - .env
     volumes:
